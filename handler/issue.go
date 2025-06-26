@@ -79,3 +79,18 @@ func CreateIssue(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, 201, issue)
 }
 
+// 이슈 목록 조회: 전체 or status별 필터링
+func ListIssues(w http.ResponseWriter, r *http.Request) {
+	status := r.URL.Query().Get("status")
+	store.IssuesLock.Lock()
+	defer store.IssuesLock.Unlock()
+	var out []model.Issue
+	for _, iss := range store.Issues {
+		if status == "" || iss.Status == status {
+			tmp := *iss
+			out = append(out, tmp)
+		}
+	}
+	util.WriteJSON(w, 200, map[string]interface{}{"issues": out})
+}
+
