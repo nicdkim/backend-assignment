@@ -94,3 +94,18 @@ func ListIssues(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, 200, map[string]interface{}{"issues": out})
 }
 
+// 이슈 상세 조회 id로
+func GetIssue(w http.ResponseWriter, r *http.Request) {
+	idstr := strings.TrimPrefix(r.URL.Path, "/issue/")
+	iid, err := strconv.ParseUint(idstr, 10, 64)
+	if err != nil {
+		util.WriteJSON(w, 400, util.ErrorResponse{"올바르지 않은 이슈 ID입니다.", 400})
+		return
+	}
+	iss, ok := getIssueByID(uint(iid))
+	if !ok {
+		util.WriteJSON(w, 404, util.ErrorResponse{"이슈를 찾을 수 없습니다.", 404})
+		return
+	}
+	util.WriteJSON(w, 200, iss)
+}
